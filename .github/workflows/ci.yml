@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# No geocoding credentials are exposed to any job: the test suite is fully
+# offline, so CI can never make a billable Google call.
+env:
+  UV_FROZEN: "0"
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint & format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+      - name: Run pre-commit (ruff, nbstripout, hygiene)
+        run: uvx pre-commit run --all-files --show-diff-on-failure
+
+  test:
+    name: Test (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.14"]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: uv sync --group dev
+      - name: Run test suite
+        run: uv run pytest
+
+  build:
+    name: Build & install from git
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+      - name: Build wheel and sdist
+        run: uv build
+      # This repo is consumed as a uv git dependency, so the import path is
+      # the deliverable. Verify it works from a clean environment.
+      - name: Install the wheel into a clean venv and import it
+        run: |
+          uv venv /tmp/verify
+          VIRTUAL_ENV=/tmp/verify uv pip install dist/*.whl
+          /tmp/verify/bin/python -c "
+          from geocoding_tool import get_geocoder, geocode_dataframe, PROVIDERS
+          print('importable, providers:', PROVIDERS)
+          "
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/

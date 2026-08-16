@@ -1,0 +1,33 @@
+default_install_hook_types: [pre-commit]
+
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.3
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+        # markdown included so `make ci` and the hooks agree: ruff formats
+        # python code blocks inside .md too.
+        types_or: [python, pyi, jupyter, markdown]
+      - id: ruff-format
+        # markdown included so `make ci` and the hooks agree: ruff formats
+        # python code blocks inside .md too.
+        types_or: [python, pyi, jupyter, markdown]
+
+  # Notebook outputs are noise in diffs and can leak data from data/input.
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.9.1
+    hooks:
+      - id: nbstripout
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=500]
+      - id: detect-private-key

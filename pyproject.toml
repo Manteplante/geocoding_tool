@@ -1,7 +1,7 @@
 [project]
 name = "geocoding-tool"
 version = "0.1.0"
-description = "Add your description here"
+description = "Pluggable Nominatim / Google geocoding backends driven from a single notebook"
 readme = "README.md"
 authors = [
     { name = "Manteplante", email = "matiasmantepizarro@gmail.com" }
@@ -9,12 +9,40 @@ authors = [
 requires-python = ">=3.12"
 dependencies = [
     "geopandas>=1.1.4",
+    "geopy>=2.5.0",
     "pandas>=3.0.5",
+    "python-dotenv>=1.2.2",
 ]
-
-[project.scripts]
-geocoding-tool = "geocoding_tool:main"
 
 [build-system]
 requires = ["uv_build>=0.12.1,<0.13.0"]
 build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "nbstripout>=0.9.1",
+    "pre-commit>=4.6.2",
+    "pytest>=9.1.1",
+    "pytest-cov>=7.0.0",
+    "ruff>=0.16.3",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = [
+    "smoke: fast offline end-to-end wiring check (no network, no cost)",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+extend-include = ["*.ipynb"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "N"]
+
+[tool.ruff.lint.per-file-ignores]
+# Notebooks legitimately import below markdown headings and keep unused
+# display-only imports in the top cell.
+"*.ipynb" = ["E402", "F401"]
