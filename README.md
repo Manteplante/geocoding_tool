@@ -14,8 +14,37 @@ make install-dev          # uv sync --group dev
 make hooks                # install pre-commit hooks
 cp .env.example .env      # then set NOMINATIM_USER_AGENT
 make smoke                # offline end-to-end check
-make notebook             # opens geocoding/geocoder.ipynb
+make geocoder-notebook    # runs the 5-town example end-to-end, live Nominatim
 ```
+
+## Example pipeline
+
+A small, real, self-contained demo: five Norwegian towns (Otta, Vinstra,
+Lørenskog, Stryn, Bodø) in `data/input/example.csv`, deliberately messy
+(stray whitespace, inconsistent casing, a trailing "kommune") so the cleaning
+step does real work. This is the only CSV in `data/` that's tracked in git —
+everything else in `data/input/` and `data/output/` is gitignored, since it's
+either large/sensitive source data or regenerable output.
+
+```bash
+make clean-notebook    # data/cleaner_example.ipynb   -> data/output/example_clean.csv
+make geocoder-notebook # geocoding/geocoder_example.ipynb -> data/output/example_geocoded.{csv,gpkg}
+```
+
+`make geocoder-notebook` runs `clean-notebook` first automatically. Both
+execute the notebook end-to-end via `jupyter nbconvert --execute --inplace`
+against the project's own kernel (see below) and write real output files —
+no jupyter server, no browser.
+
+Kernel communication is forced onto IPC (Unix domain sockets) rather than
+Jupyter's default loopback TCP — the latter is what triggers ipykernel's
+"running over TCP without encryption" warning, since anything else on the
+host can in principle see that traffic. IPC sockets live under
+`.cache/jupyter-runtime/` (gitignored) and are filesystem-permission gated,
+so there's no network-visible channel at all. This only covers execution
+through these `make` targets; a notebook opened directly in VS Code or
+another Jupyter frontend uses that tool's own kernel launcher, outside this
+repo's control.
 
 ## Providers
 
@@ -90,20 +119,41 @@ src/geocoding_tool/
   cache.py       SQLite result cache
   budget.py      per-run call cap
   config.py      env loading, defaults, attribution notices
-geocoding/geocoder.ipynb   the driver notebook
-data/input/, data/output/  CSVs in, geocoded CSV + GeoPackage out (gitignored)
-tests/                     fully offline suite
+geocoding/geocoder.ipynb          the driver notebook
+geocoding/geocoder_example.ipynb  self-contained 5-town Nominatim demo
+data/cleaner.ipynb                the driver cleaning notebook
+data/cleaner_example.ipynb        cleans data/input/example.csv
+data/input/example.csv            the only CSV tracked in git
+data/input/, data/output/         everything else here is gitignored
+tests/                            fully offline suite
+scripts/new_notebook.py           `make notebook` scaffolder
+```
+
+## Notebooks & kernel
+
+`make notebook` scaffolds a new notebook — no Jupyter server, no browser. It
+registers the project's `.venv` as a named Jupyter kernel (`register-kernel`,
+idempotent — installs into `~/.local/share/jupyter/kernels/`), then prompts
+you interactively for `data/` or `geocoding/` and a filename, and writes a
+blank notebook wired to that kernel. Open the resulting file in your editor
+or Jupyter frontend; the kernel is already registered and selectable.
+
+```bash
+make notebook           # prompts for folder + name, creates the file locally
+make register-kernel    # just (re-)register the kernel, on its own
 ```
 
 ## Development
 
 ```bash
-make help          # all targets, grouped
-make check         # format + autofix before committing
-make ci            # exactly what GitHub Actions runs
-make test          # full offline suite
-make smoke         # fast wiring check only
-make clean-cache   # drop cached results (forces fresh, billable lookups)
+make help              # all targets, grouped
+make check             # format + autofix before committing
+make ci                # exactly what GitHub Actions runs
+make test               # full offline suite
+make smoke              # fast wiring check only
+make clean-notebook     # run data/cleaner_example.ipynb end-to-end
+make geocoder-notebook  # run geocoding/geocoder_example.ipynb end-to-end (live Nominatim)
+make clean-cache        # drop cached results (forces fresh, billable lookups)
 ```
 
 The test suite blocks sockets outright, so no test can reach the network or

@@ -15,6 +15,11 @@ from geocoding_tool.config import cache_path
 
 _WHITESPACE = re.compile(r"\s+")
 
+# Every statement below binds its values with ``?`` placeholders. Query strings
+# and provider names are user data and must never be interpolated into SQL --
+# see the injection tests in tests/test_cache.py. _SCHEMA in particular must
+# stay a static literal: executescript() runs multiple statements, so a single
+# formatted value there would be a straight path to arbitrary SQL execution.
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS geocode_cache (
     provider   TEXT NOT NULL,

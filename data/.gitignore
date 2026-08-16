@@ -1,1 +1,7 @@
-*.csv
+# Raw input CSVs are typically large/sensitive and not tracked, except the
+# small demo dataset the example notebooks run against.
+input/*.csv
+!input/example.csv
+
+# Everything in output/ is regenerable from input/ + the notebooks.
+output/*
