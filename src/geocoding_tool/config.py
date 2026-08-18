@@ -44,7 +44,7 @@ PLACEHOLDER_USER_AGENTS = {
     "specify_your_app_name_here",
 }
 
-DEFAULT_MAX_REQUESTS_PER_RUN = 200
+DEFAULT_MAX_REQUESTS_PER_RUN = 400
 DEFAULT_CACHE_PATH = Path(".cache/geocode.sqlite")
 
 
