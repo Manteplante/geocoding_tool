@@ -10,6 +10,14 @@ The OSM usage policy is enforced here rather than merely documented:
   published output; :func:`geocoding_tool.batch.write_attribution` writes it
   next to exported files.
 
+The public instance is free, shared infrastructure and slows down under
+load, so a ``GeocoderTimedOut`` on some queries during a large run is normal,
+not a bug. It isn't fatal: a query that still fails after ``max_retries``
+lands in ``GeocodeResult.error`` rather than crashing the batch, and since
+failures are never cached, simply re-running ``geocode_dataframe`` retries
+only what's missing -- everything already resolved is served from cache at
+zero cost.
+
 Policy: https://operations.osmfoundation.org/policies/nominatim/
 """
 
@@ -20,7 +28,10 @@ from geopy.geocoders import Nominatim as GeopyNominatim
 
 from geocoding_tool.base import BaseGeocoder, GeocoderConfigError, GeocodeResult
 from geocoding_tool.config import (
+    NOMINATIM_ERROR_WAIT_SECONDS,
+    NOMINATIM_MAX_RETRIES,
     NOMINATIM_MIN_DELAY_SECONDS,
+    NOMINATIM_TIMEOUT_SECONDS,
     PLACEHOLDER_USER_AGENTS,
     get_env,
 )
@@ -36,7 +47,9 @@ class NominatimGeocoder(BaseGeocoder):
         *,
         user_agent: str | None = None,
         min_delay_seconds: float = NOMINATIM_MIN_DELAY_SECONDS,
-        timeout: float = 10.0,
+        timeout: float = NOMINATIM_TIMEOUT_SECONDS,
+        max_retries: int = NOMINATIM_MAX_RETRIES,
+        error_wait_seconds: float = NOMINATIM_ERROR_WAIT_SECONDS,
         country_codes: str | None = None,
         language: str | None = None,
         cache=None,
@@ -65,8 +78,8 @@ class NominatimGeocoder(BaseGeocoder):
         self._call = RateLimiter(
             self._client.geocode,
             min_delay_seconds=min_delay_seconds,
-            max_retries=2,
-            error_wait_seconds=5.0,
+            max_retries=max_retries,
+            error_wait_seconds=error_wait_seconds,
             swallow_exceptions=False,
         )
 

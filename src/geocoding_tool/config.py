@@ -25,6 +25,17 @@ ATTRIBUTIONS = {"nominatim": ATTRIBUTION_OSM, "google": ATTRIBUTION_GOOGLE}
 NOMINATIM_MIN_DELAY_SECONDS = 1.1
 GOOGLE_MIN_DELAY_SECONDS = 0.2
 
+# The public Nominatim instance is free, shared infrastructure and slows down
+# under load -- a plain GeocoderTimedOut here doesn't mean the query is bad.
+# These are looser than Google's (paid, dedicated infra) on purpose.
+NOMINATIM_TIMEOUT_SECONDS = 20.0
+NOMINATIM_MAX_RETRIES = 4
+NOMINATIM_ERROR_WAIT_SECONDS = 8.0
+
+GOOGLE_TIMEOUT_SECONDS = 10.0
+GOOGLE_MAX_RETRIES = 2
+GOOGLE_ERROR_WAIT_SECONDS = 5.0
+
 # Rejected as a user agent: it identifies nobody, which is the whole point.
 PLACEHOLDER_USER_AGENTS = {
     "",
