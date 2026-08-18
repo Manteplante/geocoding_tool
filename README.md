@@ -7,6 +7,9 @@ one string.
 Usable two ways: clone it as a template, or add it to another project as a
 dependency — `uv add git+https://github.com/<you>/geocoding_tool`.
 
+Full command reference: [`CHEATSHEET.md`](CHEATSHEET.md). Contributing —
+including an AI agent — start with [`AGENTS.md`](AGENTS.md).
+
 ## Quick start
 
 ```bash
