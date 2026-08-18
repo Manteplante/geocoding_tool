@@ -104,7 +104,7 @@ else under `data/` — real input data and all generated output — is ignored.
 | `GOOGLE_MAPS_API_KEY` | Google Geocoding API key | *(none)* |
 | `GOOGLE_GEOCODING_CONFIRM` | Must be `1` to arm the Google backend at all | `0` |
 | `GOOGLE_REGION` | Two-letter country code to bias/restrict Google results | `no` |
-| `MAX_REQUESTS_PER_RUN` | Hard cap on live provider calls, shared across providers | `200` |
+| `MAX_REQUESTS_PER_RUN` | Hard cap on live provider calls, shared across providers | `400` |
 | `GEOCODE_CACHE_PATH` | Where the SQLite result cache lives | `.cache/geocode.sqlite` |
 
 ## Consuming this repo from another project

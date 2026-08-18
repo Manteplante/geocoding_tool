@@ -80,7 +80,7 @@ Three things stand between you and a surprise bill:
 
 1. **Explicit opt-in.** The API key alone does nothing; `GOOGLE_GEOCODING_CONFIRM=1`
    must also be set. A stray `PROVIDER = "google"` cannot bill you.
-2. **Hard per-run cap.** `MAX_REQUESTS_PER_RUN` (default 200) raises
+2. **Hard per-run cap.** `MAX_REQUESTS_PER_RUN` (default 400) raises
    `GeocodeBudgetExceeded` mid-run rather than continuing silently.
 3. **Persistent cache.** Results are stored in `.cache/geocode.sqlite`, keyed by
    normalised query, so a re-run costs zero calls. Duplicate rows are also

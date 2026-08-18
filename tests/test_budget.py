@@ -45,7 +45,7 @@ def test_limit_read_from_environment(monkeypatch):
 
 
 def test_default_limit_is_conservative():
-    assert Budget().limit == 200
+    assert Budget().limit == 400
 
 
 def test_zero_limit_blocks_every_live_call():
