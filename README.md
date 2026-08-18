@@ -10,6 +10,19 @@ dependency — `uv add git+https://github.com/<you>/geocoding_tool`.
 Full command reference: [`CHEATSHEET.md`](CHEATSHEET.md). Contributing —
 including an AI agent — start with [`AGENTS.md`](AGENTS.md).
 
+## Table of contents
+
+- [Quick start](#quick-start)
+- [Example pipeline](#example-pipeline)
+- [Providers](#providers)
+  - [Nominatim usage policy](#nominatim-usage-policy)
+  - [Google spend guards](#google-spend-guards)
+- [Usage](#usage)
+- [Layout](#layout)
+- [Notebooks & kernel](#notebooks--kernel)
+- [Development](#development)
+- [Attribution](#attribution)
+
 ## Quick start
 
 ```bash
