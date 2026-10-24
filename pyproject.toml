@@ -30,6 +30,9 @@ dev = [
     "ruff>=0.16.3",
 ]
 
+[tool.uv]
+constraint-dependencies = ["certifi>=2026.10.19"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
